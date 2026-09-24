@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Questionnaire Officiel d'Ariane</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #ffe0ec, #fff0f5, #ffc0cb, #ffe4e1);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+            font-family: 'Comic Neue', cursive, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container { max-width: 620px; width: 100%; position: relative; }
+
+        .question-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px 32px;
+            box-shadow: 0 8px 32px rgba(255, 105, 180, 0.2), 0 0 0 3px #ffb6c1;
+            display: none;
+            animation: slideIn 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .question-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #ff69b4, #ff1493, #ff69b4);
+        }
+        .question-card.active { display: block; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .progress-bar {
+            width: 100%; height: 10px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 10px; margin-bottom: 20px;
+            overflow: hidden; border: 2px solid #ffb6c1;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff69b4, #ff1493);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .question-number {
+            font-family: 'Pacifico', cursive;
+            color: #ff69b4; font-size: 14px; margin-bottom: 8px;
+        }
+
+        h1 {
+            font-family: 'Pacifico', cursive;
+            color: #ff1493; font-size: 28px;
+            text-align: center; margin-bottom: 8px;
+        }
+        .subtitle {
+            text-align: center; color: #d63384;
+            font-size: 14px; margin-bottom: 30px; font-style: italic;
+        }
+        h2 {
+            font-family: 'Pacifico', cursive;
+            color: #d63384; font-size: 20px;
+            margin-bottom: 20px; line-height: 1.4;
+        }
+        .hint {
+            color: #e991b8; font-size: 13px;
+            font-style: italic; margin-bottom: 16px;
+        }
+
+        /* Slider */
+        .slider-container { margin: 20px 0; text-align: center; }
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%; height: 12px;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #ffe0ec, #ff69b4);
+            outline: none; margin: 16px 0;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 30px; height: 30px; border-radius: 50%;
+            background: #ff1493; cursor: pointer;
+            box-shadow: 0 2px 8px rgba(255, 20, 147, 0.4);
+        }
+        .slider-labels {
+            display: flex; justify-content: space-between;
+            font-size: 12px; color: #d63384;
+        }
+        .slider-value {
+            font-size: 48px;
+            font-family: 'Pacifico', cursive;
+            color: #ff1493; text-align: center;
+        }
+        .slider-value span {
+            font-size: 20px; color: #e991b8;
+        }
+
+        /* Stars */
+        .stars { display: flex; gap: 8px; justify-content: center; margin: 20px 0; }
+        .star {
+            font-size: 40px; cursor: pointer;
+            transition: transform 0.2s, filter 0.2s;
+            filter: grayscale(1);
+        }
+        .star:hover, .star.active { transform: scale(1.3); filter: grayscale(0); }
+        .star-label {
+            text-align: center; color: #ff69b4;
+            font-weight: bold; min-height: 24px; margin-top: 8px;
+        }
+
+        /* Options */
+        .options { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
+        .option {
+            padding: 14px 20px; border: 2px solid #ffb6c1;
+            border-radius: 14px; cursor: pointer;
+            transition: all 0.2s; font-size: 15px; background: #fff5f7;
+        }
+        .option:hover { border-color: #ff69b4; background: #ffe0ec; transform: translateX(4px); }
+        .option.selected {
+            border-color: #ff1493; background: #ffe0ec;
+            font-weight: bold; box-shadow: 0 2px 8px rgba(255, 20, 147, 0.2);
+        }
+
+        /* Textarea */
+        textarea {
+            width: 100%; min-height: 120px;
+            border: 2px solid #ffb6c1; border-radius: 14px;
+            padding: 16px; font-family: 'Comic Neue', cursive;
+            font-size: 15px; resize: vertical; outline: none;
+            transition: border-color 0.2s; background: #fff5f7;
+        }
+        textarea:focus { border-color: #ff1493; }
+        textarea::placeholder { color: #e991b8; }
+
+        /* Checkbox grid */
+        .checkbox-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 10px; margin: 16px 0;
+        }
+        .checkbox-option {
+            padding: 12px 14px; border: 2px solid #ffb6c1;
+            border-radius: 12px; cursor: pointer;
+            transition: all 0.2s; font-size: 14px;
+            text-align: center; background: #fff5f7;
+        }
+        .checkbox-option:hover { border-color: #ff69b4; background: #ffe0ec; }
+        .checkbox-option.selected {
+            border-color: #ff1493; background: #ffe0ec; font-weight: bold;
+        }
+
+        /* Buttons */
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 28px; }
+        .btn {
+            padding: 12px 28px; border: none; border-radius: 50px;
+            font-family: 'Comic Neue', cursive; font-size: 16px;
+            font-weight: bold; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-next {
+            background: linear-gradient(135deg, #ff69b4, #ff1493);
+            color: white; margin-left: auto;
+            box-shadow: 0 4px 12px rgba(255, 20, 147, 0.3);
+        }
+        .btn-next:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(255, 20, 147, 0.4); }
+        .btn-back { background: white; color: #ff69b4; border: 2px solid #ffb6c1; }
+        .btn-back:hover { background: #fff0f5; }
+        .btn-submit {
+            background: linear-gradient(135deg, #ff1493, #c71585);
+            color: white; font-size: 18px; padding: 16px 40px;
+            margin-left: auto;
+            box-shadow: 0 4px 16px rgba(255, 20, 147, 0.4);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 4px 16px rgba(255, 20, 147, 0.4); }
+            50% { box-shadow: 0 4px 24px rgba(255, 20, 147, 0.7); }
+        }
+
+        /* Ranking */
+        .rank-list { list-style: none; margin: 16px 0; }
+        .rank-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 16px; margin-bottom: 8px;
+            background: #fff5f7; border: 2px solid #ffb6c1;
+            border-radius: 14px; cursor: grab;
+            transition: all 0.2s; user-select: none;
+        }
+        .rank-item:active { cursor: grabbing; background: #ffe0ec; border-color: #ff1493; }
+        .rank-item.dragging { opacity: 0.5; }
+        .rank-number {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: #ff69b4; color: white; font-weight: bold;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; flex-shrink: 0;
+        }
+        .rank-text { flex: 1; font-size: 15px; }
+        .rank-score {
+            display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+        }
+        .rank-score input {
+            width: 50px; padding: 6px 8px; border: 2px solid #ffb6c1;
+            border-radius: 8px; text-align: center; font-family: 'Comic Neue', cursive;
+            font-size: 15px; font-weight: bold; outline: none; background: white;
+        }
+        .rank-score input:focus { border-color: #ff1493; }
+        .rank-score span { color: #e991b8; font-size: 13px; }
+
+        /* Manuc game */
+        .manuc-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 12px; margin: 20px 0;
+        }
+        .manuc-card {
+            aspect-ratio: 1; border-radius: 16px;
+            border: 3px solid #ffb6c1; cursor: pointer;
+            transition: all 0.3s; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 60px; background: #fff5f7;
+            position: relative;
+        }
+        .manuc-card:hover { transform: scale(1.05); border-color: #ff69b4; }
+        .manuc-card.selected { border-color: #ff1493; box-shadow: 0 4px 16px rgba(255, 20, 147, 0.4); }
+        .manuc-card img {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+        .manuc-card .card-label {
+            position: absolute; bottom: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 4px 12px; border-radius: 20px;
+            font-size: 12px; font-weight: bold; color: #d63384;
+        }
+        .manuc-result {
+            text-align: center; margin-top: 12px;
+            font-weight: bold; font-size: 16px; min-height: 24px;
+        }
+
+        /* Floating hearts */
+        .floating-hearts {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none; z-index: -1; overflow: hidden;
+        }
+        .heart {
+            position: absolute; font-size: 20px;
+            animation: floatUp linear infinite; opacity: 0.3;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Final */
+        .final-message { text-align: center; }
+        .final-message h2 { font-size: 26px; margin-bottom: 16px; }
+        .final-message p { color: #d63384; font-size: 16px; line-height: 1.6; margin-bottom: 12px; }
+        .big-heart {
+            font-size: 80px; display: block; margin: 20px auto;
+            animation: heartbeat 1.5s ease infinite;
+        }
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            15% { transform: scale(1.15); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.1); }
+        }
+
+        /* Music toggle */
+        .music-btn {
+            position: fixed; top: 16px; right: 16px;
+            width: 42px; height: 42px; border-radius: 50%;
+            border: 2px solid #ffb6c1; background: white;
+            font-size: 18px; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 105, 180, 0.2);
+            z-index: 100; transition: transform 0.2s, background 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .music-btn:hover { transform: scale(1.1); background: #fff0f5; }
+        .music-btn.playing { animation: musicPulse 1s ease infinite; }
+        @keyframes musicPulse {
+            0%, 100% { box-shadow: 0 4px 12px rgba(255, 105, 180, 0.2); }
+            50% { box-shadow: 0 4px 20px rgba(255, 105, 180, 0.5); }
+        }
+
+        .troll-msg {
+            color: #ff1493; font-size: 12px; text-align: center;
+            min-height: 18px; margin-top: 4px; font-style: italic;
+        }
+
+        /* Night mode toggle */
+        .night-btn {
+            position: fixed; top: 16px; right: 66px;
+            width: 42px; height: 42px; border-radius: 50%;
+            border: 2px solid #ffb6c1; background: white;
+            font-size: 18px; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 105, 180, 0.2);
+            z-index: 100; transition: all 0.4s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .night-btn:hover { transform: scale(1.1); }
+
+        /* NIGHT MODE */
+        body.night-mode {
+            background: linear-gradient(135deg, #1a0a14, #2d0a1e, #1a0520, #0d0a1a);
+            background-size: 400% 400%;
+        }
+        body.night-mode .night-btn {
+            background: #2d0a1e; border-color: #ff2d55;
+            box-shadow: 0 4px 16px rgba(255, 45, 85, 0.4);
+        }
+        body.night-mode .music-btn {
+            background: #2d0a1e; border-color: #ff2d55;
+            color: #ff2d55;
+        }
+        body.night-mode .progress-bar {
+            background: rgba(255, 45, 85, 0.15); border-color: #ff2d55;
+        }
+        body.night-mode .progress-fill {
+            background: linear-gradient(90deg, #ff2d55, #e60040, #cc0037);
+        }
+        body.night-mode .question-card {
+            background: #1a0a14;
+            box-shadow: 0 8px 40px rgba(255, 45, 85, 0.15), 0 0 0 3px #ff2d55;
+            color: #f0d0d8;
+        }
+        body.night-mode .question-card::before {
+            background: linear-gradient(90deg, #ff2d55, #e60040, #ff2d55);
+        }
+        body.night-mode h1 { color: #ff2d55; }
+        body.night-mode h2 { color: #ff6b8a; }
+        body.night-mode .subtitle { color: #cc7a8a; }
+        body.night-mode .question-number { color: #ff2d55; }
+        body.night-mode .hint { color: #aa5068; }
+        body.night-mode .troll-msg { color: #ff2d55; }
+        body.night-mode .star-label { color: #ff2d55; }
+
+        body.night-mode .option {
+            background: #2d0a1e; border-color: #5a1a30;
+            color: #f0d0d8;
+        }
+        body.night-mode .option:hover {
+            background: #3d1228; border-color: #ff2d55;
+        }
+        body.night-mode .option.selected {
+            background: #3d1228; border-color: #ff2d55;
+            box-shadow: 0 2px 12px rgba(255, 45, 85, 0.3);
+        }
+        body.night-mode .checkbox-option {
+            background: #2d0a1e; border-color: #5a1a30; color: #f0d0d8;
+        }
+        body.night-mode .checkbox-option:hover { background: #3d1228; border-color: #ff2d55; }
+        body.night-mode .checkbox-option.selected { background: #3d1228; border-color: #ff2d55; }
+
+        body.night-mode textarea {
+            background: #2d0a1e; border-color: #5a1a30;
+            color: #f0d0d8;
+        }
+        body.night-mode textarea:focus { border-color: #ff2d55; }
+        body.night-mode textarea::placeholder { color: #7a3a4e; }
+
+        body.night-mode input[type="range"] {
+            background: linear-gradient(90deg, #2d0a1e, #ff2d55);
+        }
+        body.night-mode input[type="range"]::-webkit-slider-thumb {
+            background: #ff2d55;
+            box-shadow: 0 0 12px rgba(255, 45, 85, 0.6);
+        }
+        body.night-mode .slider-value { color: #ff2d55; }
+        body.night-mode .slider-value span { color: #aa5068; }
+        body.night-mode .slider-labels { color: #aa5068; }
+
+        body.night-mode .btn-next {
+            background: linear-gradient(135deg, #ff2d55, #e60040);
+            box-shadow: 0 4px 16px rgba(255, 45, 85, 0.4);
+        }
+        body.night-mode .btn-back {
+            background: #2d0a1e; color: #ff2d55; border-color: #5a1a30;
+        }
+        body.night-mode .btn-back:hover { background: #3d1228; }
+        body.night-mode .btn-submit {
+            background: linear-gradient(135deg, #ff2d55, #cc0037);
+            box-shadow: 0 4px 20px rgba(255, 45, 85, 0.5);
+        }
+
+        body.night-mode .rank-item {
+            background: #2d0a1e; border-color: #5a1a30; color: #f0d0d8;
+        }
+        body.night-mode .rank-item:active { background: #3d1228; border-color: #ff2d55; }
+        body.night-mode .rank-number { background: #ff2d55; }
+        body.night-mode .rank-score input {
+            background: #1a0a14; border-color: #5a1a30; color: #f0d0d8;
+        }
+        body.night-mode .rank-score input:focus { border-color: #ff2d55; }
+        body.night-mode .rank-score span { color: #7a3a4e; }
+
+        body.night-mode .manuc-card {
+            border-color: #5a1a30; background: #2d0a1e;
+        }
+        body.night-mode .manuc-card:hover { border-color: #ff2d55; }
+        body.night-mode .manuc-card.selected {
+            border-color: #ff2d55;
+            box-shadow: 0 4px 20px rgba(255, 45, 85, 0.4);
+        }
+        body.night-mode .manuc-result { color: #ff2d55; }
+        body.night-mode .card-label { background: rgba(26, 10, 20, 0.9); color: #ff6b8a; }
+
+        body.night-mode .racer-bar-bg { background: #2d0a1e; }
+        body.night-mode .racer.charles .racer-bar {
+            background: linear-gradient(90deg, #ff2d55, #e60040, #cc0037);
+            box-shadow: 0 0 16px rgba(255, 45, 85, 0.5);
+        }
+        body.night-mode .racer:not(.charles) .racer-bar {
+            background: linear-gradient(90deg, #3d1228, #5a1a30);
+        }
+        body.night-mode .racer-name { color: #7a3a4e; }
+        body.night-mode .racer.charles .racer-name { color: #ff2d55; }
+        body.night-mode .race-message { color: #ff2d55; }
+        body.night-mode .race-btn {
+            background: #2d0a1e; border-color: #5a1a30; color: #ff6b8a;
+        }
+        body.night-mode .race-btn:hover { background: #3d1228; border-color: #ff2d55; }
+
+        body.night-mode .final-message p { color: #cc7a8a; }
+        body.night-mode .heart { opacity: 0.15; }
+
+        /* Night mode glow effect on card */
+        body.night-mode .question-card {
+            animation: slideIn 0.5s ease, nightGlow 4s ease-in-out infinite;
+        }
+        @keyframes nightGlow {
+            0%, 100% { box-shadow: 0 8px 40px rgba(255, 45, 85, 0.1), 0 0 0 3px #ff2d55; }
+            50% { box-shadow: 0 8px 60px rgba(255, 45, 85, 0.25), 0 0 0 3px #ff2d55; }
+        }
+
+        /* Podium / Race */
+        .race-container {
+            position: relative;
+            margin: 16px 0;
+            overflow: hidden;
+        }
+        .race-track {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .racer {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            height: 36px;
+            transition: all 0.5s ease;
+        }
+        .racer-name {
+            width: 90px;
+            font-size: 13px;
+            font-weight: bold;
+            text-align: right;
+            flex-shrink: 0;
+            color: #999;
+        }
+        .racer-bar-bg {
+            flex: 1;
+            height: 28px;
+            background: #f5f5f5;
+            border-radius: 14px;
+            overflow: hidden;
+            position: relative;
+        }
+        .racer-bar {
+            height: 100%;
+            border-radius: 14px;
+            transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            min-width: 30px;
+        }
+        .racer.charles .racer-name {
+            color: #ff1493;
+            font-size: 15px;
+        }
+        .racer.charles .racer-bar {
+            background: linear-gradient(90deg, #ff69b4, #ff1493, #c71585);
+            box-shadow: 0 2px 12px rgba(255, 20, 147, 0.4);
+        }
+        .racer:not(.charles) .racer-bar {
+            background: linear-gradient(90deg, #ddd, #bbb);
+        }
+        .race-medal {
+            font-size: 18px;
+            flex-shrink: 0;
+            width: 24px;
+            text-align: center;
+        }
+        .race-message {
+            text-align: center;
+            font-family: 'Pacifico', cursive;
+            color: #ff1493;
+            font-size: 16px;
+            margin-top: 16px;
+            min-height: 24px;
+        }
+        .race-btn-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .race-btn {
+            padding: 8px 16px;
+            border: 2px solid #ffb6c1;
+            border-radius: 50px;
+            background: white;
+            font-family: 'Comic Neue', cursive;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: bold;
+            color: #d63384;
+        }
+        .race-btn:hover {
+            background: #ffe0ec;
+            border-color: #ff1493;
+        }
+        .race-btn.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        @keyframes charlesZoom {
+            0% { width: 0%; }
+            100% { width: var(--target-width); }
+        }
+        /* ======= MOBILE ======= */
+        @media (max-width: 640px) {
+            body { padding: 10px; }
+            .container { max-width: 100%; }
+            .question-card { padding: 28px 18px; border-radius: 18px; }
+            h1 { font-size: 22px; }
+            h2 { font-size: 17px; }
+            .subtitle { font-size: 12px; }
+            .question-number { font-size: 12px; }
+            .hint { font-size: 12px; }
+
+            /* Buttons */
+            .btn { padding: 10px 20px; font-size: 14px; }
+            .btn-submit { padding: 14px 30px; font-size: 16px; }
+            .nav-buttons { margin-top: 20px; }
+
+            /* Slider */
+            .slider-value { font-size: 36px; }
+            .slider-value span { font-size: 16px; }
+            .slider-labels { font-size: 10px; }
+
+            /* Stars */
+            .star { font-size: 32px; }
+            .stars { gap: 6px; }
+
+            /* Options */
+            .option { padding: 12px 14px; font-size: 13px; }
+
+            /* Checkbox grid - 1 col on very small */
+            .checkbox-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .checkbox-option { padding: 10px 8px; font-size: 12px; }
+
+            /* Ranking */
+            .rank-item { padding: 10px 10px; gap: 8px; }
+            .rank-text { font-size: 13px; }
+            .rank-score input { width: 42px; font-size: 13px; padding: 4px 6px; }
+            .rank-score span { font-size: 11px; }
+            .rank-number { width: 24px; height: 24px; font-size: 12px; }
+
+            /* Nuque grid */
+            .manuc-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .manuc-card { border-width: 2px; }
+            .card-label { font-size: 10px; padding: 3px 8px; }
+
+            /* Race */
+            .racer { height: 30px; gap: 4px; }
+            .racer-name { width: 65px; font-size: 10px; }
+            .racer-bar-bg { height: 22px; }
+            .racer-bar { font-size: 10px; padding-right: 4px; }
+            .race-medal { font-size: 14px; width: 18px; }
+            .race-message { font-size: 13px; }
+            .race-btn { padding: 6px 12px; font-size: 11px; }
+            .race-btn-row { gap: 6px; }
+
+            /* Textarea */
+            textarea { min-height: 80px; font-size: 14px; padding: 12px; }
+
+            /* Fixed buttons top */
+            .night-btn, .music-btn { width: 34px; height: 34px; font-size: 14px; border-width: 1.5px; }
+            .music-btn { right: 8px; top: 8px; }
+            .night-btn { right: 48px; top: 8px; }
+
+            /* Progress bar */
+            .progress-bar { height: 8px; margin-bottom: 14px; }
+
+            /* Final buttons */
+            .final-message .btn { font-size: 13px; padding: 12px 20px; }
+        }
+
+        @media (max-width: 380px) {
+            .question-card { padding: 22px 14px; }
+            h2 { font-size: 15px; }
+            .checkbox-grid { grid-template-columns: 1fr; }
+            .manuc-grid { grid-template-columns: repeat(2, 1fr); }
+            .racer-name { width: 55px; font-size: 9px; }
+            .slider-value { font-size: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+<button class="night-btn" id="nightBtn" onclick="toggleNightMode()" title="Mode nuit">&#127769;</button>
+<button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="Musique d'ambiance">&#127925;</button>
+<div class="floating-hearts" id="hearts"></div>
+
+<div class="container">
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+    </div>
+
+    <!-- INTRO -->
+    <div class="question-card active" data-step="0">
+        <h1>Le Questionnaire Officiel</h1>
+        <h1 style="font-size: 22px; margin-bottom: 4px;">d'Ariane</h1>
+        <p class="subtitle">(Version 2.0 - Strictement confidentiel)</p>
+        <p style="text-align:center; color:#d63384; margin: 20px 0; line-height: 1.7;">
+            Bienvenue dans ce formulaire <b>extremement serieux</b>, autant serieux que <b>confidentiel</b>.<br><br>
+            Merci de ne pas le partager et de repondre franchement, a des fins d'<b>amelioration continue</b> pour l'accueil.<br><br>
+            <i>Duree estimee : 3 min<br>Niveau de serieux requis : maximal</i>
+        </p>
+        <div class="nav-buttons">
+            <button class="btn btn-next" onclick="nextStep()">C'est parti !</button>
+        </div>
+    </div>
+
+    <!-- SECTION 1 : PREMIERE SOIREE -->
+
+    <!-- Q1 : Note globale premiere soiree /20 (min 13) -->
+    <div class="question-card" data-step="1">
+        <span class="question-number">Question 1/12 - La premiere soiree</span>
+        <h2>Note globale de la premiere soiree /20 ?</h2>
+        <p class="hint">On parle de toute la soiree : l'ecole, la tchatche, tout.</p>
+        <div class="slider-container">
+            <div class="slider-value" id="sv1">13 <span>/20</span></div>
+            <input type="range" min="13" max="20" value="13" id="s1" oninput="updateTrollSlider('s1','sv1')">
+            <div class="slider-labels">
+                <span>13 (le minimum acceptable)</span>
+                <span>20 (soiree parfaite)</span>
+            </div>
+            <div class="troll-msg" id="troll1"></div>
+        </div>
+        <textarea id="t1" placeholder="Un commentaire sur la soiree ? (optionnel)" style="min-height:60px; margin-top:8px;"></textarea>
+        <div class="nav-buttons">
+            <button class="btn btn-back" onclick="prevStep()">Retour</button>
+            <button class="btn btn-next" onclick="nextStep()">Suivant</button>
+        </div>
+    </div>
+
+    <!-- Q2 : Score physique /20 (min 13) -->
+    <div class="question-card" data-step="2">
+        <span class="question-number">Question 2/12 - Performance</span>
+        <h2>Score de performance physique /20 ?</h2>
+        <p class="hint">Tu sais tres bien de quoi on parle. Sois honnete (mais pas trop).</p>
+        <div class="slider-container">
+            <div class="slider-value" id="sv2">13 <span>/20</span></div>
+            <input type="range" min="13" max="20" value="13" id="s2" oninput="updateTrollSlider('s2','sv2')">
+            <div class="slider-labels">
+                <span>13 (la moyenne haute)</span>
+                <span>20 (athlete olympique)</span>
+            </div>
+            <div class="troll-msg" id="troll2"></div>
+        </div>
+        <textarea id="t2" placeholder="Des axes d'amelioration ? On est dans une demarche qualite ici." style="min-height:60px; margin-top:8px;"></textarea>
+        <div class="nav-buttons">
+            <button class="btn btn-back" onclick="prevStep()">Retour</button>
+            <button class="btn btn-next" onclick="nextStep()">Suivant</button>
+        </div>
+    </div>
+
+    <!-- Q3 : Note du bisou /20 (min 13) -->
+    <div class="question-card" data-step="3">
+        <span class="question-number">Question 3/12 - Le bisou</span>
+        <h2>Le premier bisou, c'etait comment /20 ?</h2>
+        <p class="hint">Le moment fatidique. On veut du detail.</p>
+        <div class="slider-container">
+            <div class="slider-value" id="sv3">13 <span>/20</span></div>
+            <input type="range" min="13" max="20" value="13" id="s3" oninput="updateTrollSlider('s3','sv3')">
+            <div class="slider-labels">
+                <span>13 (correct)</span>
+                <span>20 (des papillons)</span>
+            </div>
+            <div class="troll-msg" id="troll3"></div>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn btn-back" onclick="prevStep()">Retour</button>
+            <button class="btn btn-next" onclick="nextStep()">Suivant</button>
+        </div>
+    </div>
+
+    <!-- SECTION 2 : DEUXIEME RENDEZ-VOUS -->
+
+    <!-- Q4 : Contente que Charles vienne /20 (min 18) -->
+    <div class="question-card" data-step="4">
+        <span class="question-number">Question 4/12 - Le deuxieme rdv</span>
+        <h2>A quel point t'as ete contente que Charles debarque le mercredi soir ?</h2>
+        <p class="hint">Il a decide le matin meme de venir. Quel homme.</p>
+        <div class="slider-container">
+            <div class="slider-value" id="sv4">18 <span>/20</span></div>
+            <input type="range" min="18" max="20" value="18" id="s4" oninput="updateTrollSlider('s4','sv4')">
+            <div class="slider-labels">
+                <span>18 (contente)</span>
+                <span>20 (la plus heureuse du monde)</span>
+            </div>
+            <div class="troll-msg" id="troll4"></div>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn btn-back" onclick="prevStep()">Retour</button>
+            <button class="btn btn-next" onclick="nextStep()">Suivant</button>
+        </div>
+    </div>
+
+    <!-- Q5 : Score performance physique rdv 2 /20 (min 13) -->
+    <div class="question-card" data-step="5">
+        <span class="question-number">Question 5/12 - Performance (le retour)</span>
+        <h2>Score de performance physique du deuxieme rdv /20 ?</h2>
+        <p class="hint">On avait toute la soiree ET le jeudi. C'est important pour le suivi qualite.</p>
+        <div class="slider-container">
+            <div class="slider-value" id="sv5">13 <span>/20</span></div>
+            <input type="range" min="13" max="20" value="13" id="s5" oninput="updateTrollSlider('s5','sv5')">
+            <div class="slider-labels">
+                <span>13 (bien mais peut mieux faire)</span>
+                <span>20 (exceptionnel)</span>
+            </div>
+            <div class="troll-msg" id="troll5"></div>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn btn-back" onclick="prevStep()">Retour</button>
+            <button class="btn btn-next" onclick="nextStep()">Suivant</button>
+        </div>
+    </div>
+
+    <!-- Q6 : Classement 5 trucs du 2eme rdv + note /20 -->
+    <div class="question-card" data-step="6">
+        <span class="question-number">Question 6/12 - Le classement officiel</span>
+        <h2>Classe ces 5 moments du 2eme rdv du meilleur au moins bon, et note chacun /20</h2>
+        <p class="hint">Glisse pour reordonner. Rappel : en dessous de 15 c'est vexant.</p>
+        <ul class="rank-list" id="rankList">
+            <li class="rank-item" draggable="true" data-id="conversations">
+                <span class="rank-number">1</span>
+                <span class="rank-text">Les conversations</span>
+                <div class="rank-score"><input type="number" min="0" max="20" value="17" class="rank-input"><span>/20</span></div>
+            </li>
+            <li class="rank-item" draggable="true" data-id="soiree">
+                <span class="rank-number">2</span>
+                <span class="rank-text">La soiree du mercredi</span>
+                <div class="rank-score"><input type="number" min="0" max="20" value="17" class="rank-input"><span>/20</span></div>
+            </li>
+            <li class="rank-item" draggable="true" data-id="journee">
+                <span class="rank-number">3</span>
+                <span class="rank-text">La journee du jeudi ensemble</span>
+                <div class="rank-score"><input type="number" min="0" max="20" value="17" class="rank-input"><span>/20</span></div>
+            </li>
+            <li class="rank-item" draggable="true" data-id="physique">
+                <span class="rank-number">4</span>
+                <span class="rank-text">Les moments physiques</span>
+                <div class="rank-score"><input type="number" min="0" max="20" value="17" class="rank-input"><span>/20</span></div>
+            </li>
+            <li class="rank-item" draggable="true" data-id="nuque">
+                <span class="rank-number">5</span>
+                <span class="rank-text">La nuque de Charles (evidemment)</span>
+                <div class="rank-score"><input type="number" min="0" max="20" value="20" class="rank-input"><span>/20</span></div>
+            </li>
+        </ul>
+        <div class="nav-buttons">
+            <button class="btn btn-back" onclick="prevStep()">Retour</button>
+            <button class="btn btn-next" onclick="nextStep()">Suivant</button>
+        </div>
+    </div>
+
+    <!-- Q7 : Trouve Manuc -->
+    <div class="question-card" data-step="7">
+        <span class="question-number">Question 7/12 - Le jeu de la nuque</span>
+        <h2>Retrouve la nuque de Charles parmi ces 5 imposteurs !</h2>
+        <p class="hint">On sait que t'es fan. Prouve que tu la reconnais. C'est eliminatoire.</p>
+        <div class="manuc-grid">
+            <div class="manuc-card" onclick="selectManuc(this, 1)">
+                <img src="le-plan-rapproché-du-dos-de-la-tête-de-l-homme-tandis-que-ses-cheveux-sont-coupés-isolé-o-31821843.webp" alt="Nuque 1">
+                <span class="card-label">Nuque n&deg;1</span>
+            </div>
+            <div class="manuc-card" onclick="selectManuc(this, 2)">
+                <img src="1000_F_5006851_2Ohsjr2kItHpyA0TLUy9uT3Gsq5uNpgF.jpg" alt="Nuque 2">
+                <span class="card-label">Nuque n&deg;2</span>
+            </div>
+            <div class="manuc-card" onclick="selectManuc(this, 3)">
+                <img src="nuque-d-un-homme-presque-chauve-mûr-contre-le-ciel-119755274.webp" alt="Nuque 3">
+                <span class="card-label">Nuque n&deg;3</span>
+            </div>
+            <div class="manuc-card" onclick="selectManuc(this, 4)">
+                <img src="Protege_nuque_back_on_track_porte-min.webp" alt="Nuque 4">
+                <span class="card-label">Nuque n&deg;4</span>
+            </div>
+            <div class="manuc-card" onclick="selectManuc(this, 5)">
+                <img src="gettyimages-86078840-612x612.jpg" alt="Nuque 5">
+                <span class="card-label">Nuque n&deg;5</span>
+            </div>
+        </div>
+        <div class="manuc-result" id="manucResult"></div>
+        <div class="nav-buttons">
+            <button class="btn btn-back" onclick="prevStep()">Retour</button>
+            <button class="btn btn-next" onclick="nextStep()">Suivant</button>
+        </div>
+    </div>
+
+    <!-- SECTION 3 : LA SUITE -->
+
+    <!-- Q8 : Hate de revoir /20 -->
+    <div class="question-card" data-step="8">
+        <span class="question-number">Question 8/12 - La suite</span>
+        <h2>A quel point t'as hate de revoir Charles la semaine prochaine ?</h2>
+        <p class="hint">Rappel : il a fait ce questionnaire pour toi. Tiens-en compte dans ta note.</p>
+        <div class="slider-container">
+            <div class="slider-value" id="sv8">10 <span>/20</span></div>
+            <input type="range" min="0" max="20" value="10" id="s8" oninput="updateSlider('s8','sv8')">
+            <div class="slider-labels">
+                <span>0 (sans plus)</span>
+                <span>20 (je compte les heures)</span>
+            </div>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn btn-back" onclick="prevStep()">Retour</button>
+            <button class="btn btn-next" onclick="nextStep()">Suivant</button>
+        </div>
+    </div>
+
+    <!-- Q9 : Attachement -->
+    <div class="question-card" data-step="9">
+        <span class="question-number">Question 9/12 - La question qui compte</span>
+        <h2>A quel point tu penses que tu pourrais t'attacher a Charles ?</h2>
+        <p class="hint">Reponds avec le coeur, pas avec la tete. (Mais la bonne reponse c'est 20.)</p>
+        <div class="slider-container">
+            <div class="slider-value" id="sv9">10 <span>/20</span></div>
+            <input type="range" min="0" max="20" value="10" id="s9" oninput="updateSlider('s9','sv9')">
+            <div class="slider-labels">
+                <span>0 (coeur de pierre)</span>
+                <span>20 (deja accro)</span>
+            </div>
+        </div>
+        <textarea id="t9attach" placeholder="Tu veux developper ? (on est curieux)" style="min-height:60px; margin-top:8px;"></textarea>
+        <div class="nav-buttons">
+            <button class="btn btn-back" onclick="prevStep()">Retour</button>
+            <button class="btn btn-next" onclick="nextStep()">Suivant</button>
+        </div>
+    </div>
+
+    <!-- Q10 : Podium / Course -->
+    <div class="question-card" data-step="10" id="raceCard">
+        <span class="question-number">Question 10/12 - Le classement general</span>
+        <h2>Classe Charles parmi tes pretendants</h2>
+        <p class="hint">Voici la competition. Lance la course et vois ou chacun se situe. Tu peux tenter de changer le classement... tenter.</p>
+        <div class="race-container">
+            <div class="race-track" id="raceTrack"></div>
+        </div>
+        <div class="race-message" id="raceMessage"></div>
+        <div class="race-btn-row">
+            <button class="race-btn" id="raceStartBtn" onclick="startRace()">Lancer la course !</button>
+            <button class="race-btn disabled" id="raceTryBtn" onclick="tryDethrone()">Mettre quelqu'un d'autre en 1er</button>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn btn-back" onclick="prevStep()">Retour</button>
+            <button class="btn btn-next" onclick="nextStep()">Suivant</button>
+        </div>
+    </div>
+
+    <!-- Q11 : Activites semaine prochaine -->
+    <div class="question-card" data-step="11">
+        <span class="question-number">Question 11/12 - Programme</span>
+        <h2>Qu'est-ce que t'aimerais faire la semaine prochaine ?</h2>
+        <p class="hint">(Plusieurs choix possibles, on est pas fermees)</p>
+        <div class="checkbox-grid" data-name="activites">
+            <div class="checkbox-option" onclick="toggleCheckbox(this)">Resto</div>
+            <div class="checkbox-option" onclick="toggleCheckbox(this)">Cuisiner ensemble</div>
+            <div class="checkbox-option" onclick="toggleCheckbox(this)">Balade / pique-nique</div>
+            <div class="checkbox-option" onclick="toggleCheckbox(this)">Bar / cocktails</div>
+            <div class="checkbox-option" onclick="toggleCheckbox(this)">Film / serie au calme</div>
+            <div class="checkbox-option" onclick="toggleCheckbox(this)">Activite (bowling, musee...)</div>
+            <div class="checkbox-option" onclick="toggleCheckbox(this)">Rester au lit</div>
+            <div class="checkbox-option" onclick="toggleCheckbox(this)">Admirer la nuque de Charles</div>
+        </div>
+        <textarea id="t9" placeholder="Autre idee ? Dis tout..." style="min-height:60px; margin-top:8px;"></textarea>
+        <div class="nav-buttons">
+            <button class="btn btn-back" onclick="prevStep()">Retour</button>
+            <button class="btn btn-next" onclick="nextStep()">Suivant</button>
+        </div>
+    </div>
+
+    <!-- Q12 : Attentes + mot de la fin -->
+    <div class="question-card" data-step="12">
+        <span class="question-number">Question 12/12 - La derniere !</span>
+        <h2>Qu'est-ce que t'attendrais de Charles au prochain rendez-vous ?</h2>
+        <p class="hint">Sois precise, c'est pour son plan d'amelioration continue.</p>
+        <textarea id="t10" placeholder="Ce que j'aimerais..."></textarea>
+        <div style="margin-top: 12px;">
+            <p style="color:#d63384; font-size:14px; margin-bottom:8px; font-weight:bold;">Un petit mot pour la fin ?</p>
+            <textarea id="t11b" placeholder="Compliment, declaration, vanne... tout est accepte" style="min-height:60px;"></textarea>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn btn-back" onclick="prevStep()">Retour</button>
+            <button class="btn btn-submit" onclick="submitQuiz()">Envoyer !</button>
+        </div>
+    </div>
+
+    <!-- FINAL SCREEN -->
+    <div class="question-card" data-step="13">
+        <div class="final-message">
+            <span class="big-heart">&#10084;&#65039;</span>
+            <h2>Merci Ariane !</h2>
+            <p>Tes reponses sont pretes. Envoie-les a Charles :</p>
+            <div style="display:flex; flex-direction:column; gap:10px; margin: 20px 0;">
+                <button class="btn btn-next" style="margin:0;" onclick="sendWhatsApp()">Envoyer par WhatsApp</button>
+                <button class="btn btn-next" style="margin:0; background:linear-gradient(135deg,#34C759,#28a745);" onclick="sendSMS()">Envoyer par SMS / iMessage</button>
+                <button class="btn btn-back" style="margin:0;" onclick="copyResults()">Copier les resultats</button>
+            </div>
+            <div id="copyConfirm" style="color:#28a745; font-size:14px; min-height:20px; text-align:center;"></div>
+            <p style="font-family: 'Pacifico', cursive; color: #ff1493; font-size: 20px; margin-top: 16px;">A tres tres vite !</p>
+        </div>
+    </div>
+
+    <!-- ADMIN : page resultats -->
+    <div class="question-card" data-step="admin" id="adminCard" style="display:none;">
+        <h2 style="text-align:center;">Resultats du questionnaire</h2>
+        <pre id="adminResults" style="white-space:pre-wrap; word-break:break-word; background:#fff5f7; padding:16px; border-radius:12px; border:2px solid #ffb6c1; font-family:'Comic Neue',cursive; font-size:14px; line-height:1.6; color:#d63384;"></pre>
+    </div>
+</div>
+
+<script>
+    let currentStep = 0;
+    const totalQuestions = 12;
+    const answers = {};
+
+    // Floating hearts
+    (function() {
+        const container = document.getElementById('hearts');
+        const hearts = ['&#10084;&#65039;', '&#128149;', '&#128151;', '&#128156;'];
+        for (let i = 0; i < 15; i++) {
+            const h = document.createElement('span');
+            h.className = 'heart';
+            h.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
+            h.style.left = Math.random() * 100 + '%';
+            h.style.fontSize = (15 + Math.random() * 20) + 'px';
+            h.style.animationDuration = (8 + Math.random() * 12) + 's';
+            h.style.animationDelay = Math.random() * 10 + 's';
+            container.appendChild(h);
+        }
+    })();
+
+    function showStep(step) {
+        document.querySelectorAll('.question-card').forEach(c => c.classList.remove('active'));
+        const target = document.querySelector(`[data-step="${step}"]`);
+        if (target) {
+            target.classList.add('active');
+            target.style.animation = 'none';
+            target.offsetHeight;
+            target.style.animation = 'slideIn 0.5s ease';
+        }
+        const progress = step === 0 ? 0 : Math.min((step / totalQuestions) * 100, 100);
+        document.getElementById('progressFill').style.width = progress + '%';
+    }
+
+    function nextStep() { saveCurrentAnswer(); currentStep++; showStep(currentStep); }
+    function prevStep() { if (currentStep > 0) { currentStep--; showStep(currentStep); } }
+
+    // Troll slider (with min enforcement messages)
+    const trollMessages = {
+        s1: "En dessous de 13 c'est pas une option, desolee.",
+        s2: "Le minimum syndical c'est 13. On a des standards ici.",
+        s3: "13 minimum. C'etait bien et tu le sais.",
+        s4: "En dessous de 18 c'est impossible, tu etais clairement ravie.",
+        s5: "Pareil, 13 minimum. On est pas la pour rigoler (enfin si).",
+    };
+
+    function updateTrollSlider(sliderId, labelId) {
+        const val = document.getElementById(sliderId).value;
+        document.getElementById(labelId).innerHTML = val + ' <span>/20</span>';
+    }
+
+    function updateSlider(sliderId, labelId) {
+        const val = document.getElementById(sliderId).value;
+        document.getElementById(labelId).innerHTML = val + ' <span>/20</span>';
+    }
+
+    // Show troll messages on load for sliders at min
+    ['s1','s2','s3','s4','s5'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            const trollId = 'troll' + id.charAt(1);
+            const trollEl = document.getElementById(trollId);
+            if (trollEl) trollEl.textContent = trollMessages[id];
+            el.addEventListener('input', function() {
+                if (trollEl) {
+                    trollEl.textContent = parseInt(this.value) <= parseInt(this.min)
+                        ? trollMessages[id] : '';
+                }
+            });
+        }
+    });
+
+    // Options
+    function selectOption(el, name) {
+        document.querySelectorAll(`[data-name="${name}"] .option`).forEach(o => o.classList.remove('selected'));
+        el.classList.add('selected');
+    }
+    function toggleCheckbox(el) { el.classList.toggle('selected'); }
+
+    // Manuc game
+    let selectedManuc = null;
+    function selectManuc(el, num) {
+        document.querySelectorAll('.manuc-card').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedManuc = num;
+        document.getElementById('manucResult').innerHTML =
+            '<span style="color:#ff1493">Nuque n&deg;' + num + ' selectionnee !</span>';
+    }
+
+    // Drag & drop ranking
+    const rankList = document.getElementById('rankList');
+    let dragItem = null;
+
+    rankList.addEventListener('dragstart', function(e) {
+        dragItem = e.target.closest('.rank-item');
+        if (dragItem) dragItem.classList.add('dragging');
+    });
+    rankList.addEventListener('dragend', function() {
+        if (dragItem) dragItem.classList.remove('dragging');
+        dragItem = null;
+        updateRankNumbers();
+    });
+    rankList.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(rankList, e.clientY);
+        if (dragItem) {
+            if (afterElement) rankList.insertBefore(dragItem, afterElement);
+            else rankList.appendChild(dragItem);
+        }
+    });
+
+    function getDragAfterElement(container, y) {
+        const elements = [...container.querySelectorAll('.rank-item:not(.dragging)')];
+        return elements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset) return { offset, element: child };
+            return closest;
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    function updateRankNumbers() {
+        rankList.querySelectorAll('.rank-item').forEach((item, i) => {
+            item.querySelector('.rank-number').textContent = i + 1;
+        });
+    }
+
+    // Touch drag support for mobile
+    let touchItem = null;
+    let touchClone = null;
+    rankList.addEventListener('touchstart', function(e) {
+        touchItem = e.target.closest('.rank-item');
+        if (!touchItem) return;
+        touchItem.classList.add('dragging');
+    }, { passive: true });
+    rankList.addEventListener('touchmove', function(e) {
+        if (!touchItem) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        const afterElement = getDragAfterElement(rankList, touch.clientY);
+        if (afterElement) rankList.insertBefore(touchItem, afterElement);
+        else rankList.appendChild(touchItem);
+    }, { passive: false });
+    rankList.addEventListener('touchend', function() {
+        if (touchItem) touchItem.classList.remove('dragging');
+        touchItem = null;
+        updateRankNumbers();
+    });
+
+    // Race / Podium
+    const racers = [
+        { name: 'Charles', score: 100, isCharles: true },
+        { name: 'Clement', score: 0 },
+        { name: 'Jules', score: 0 },
+        { name: 'Mathieu', score: 0 },
+        { name: 'Antoine', score: 0 },
+        { name: 'Hugo', score: 0 },
+        { name: 'Theo', score: 0 },
+        { name: 'Lucas', score: 0 },
+        { name: 'Raphael', score: 0 },
+        { name: 'Thomas', score: 0 },
+        { name: 'Maxime', score: 0 },
+        { name: 'Alexandre', score: 0 },
+    ];
+
+    // Init race track
+    function initRace() {
+        const track = document.getElementById('raceTrack');
+        track.innerHTML = '';
+        // Shuffle non-Charles racers for random low scores
+        racers.forEach(r => {
+            if (!r.isCharles) r.score = Math.floor(Math.random() * 6) + 2; // 2-7% lol
+        });
+        // Sort by score desc
+        racers.sort((a, b) => b.score - a.score);
+        racers.forEach((r, i) => {
+            const div = document.createElement('div');
+            div.className = 'racer' + (r.isCharles ? ' charles' : '');
+            div.innerHTML = `
+                <span class="race-medal">${i === 0 ? '&#127942;' : ''}</span>
+                <span class="racer-name">${r.name}</span>
+                <div class="racer-bar-bg">
+                    <div class="racer-bar" style="width: 0%"></div>
+                </div>
+            `;
+            track.appendChild(div);
+        });
+    }
+
+    let raceStarted = false;
+    let dethroneAttempts = 0;
+    const dethroneMessages = [
+        "Haha non. Charles reste en tete. Tres loin en tete.",
+        "Bien tente. Ils sont toujours aussi ridicules.",
+        "C'est mignon d'essayer. Les autres font de la figuration.",
+        "Erreur systeme : impossible de detroner Charles. Abandon recommande.",
+        "Clement a essaye. Clement a perdu des points.",
+        "Jules demande officiellement a etre retire du classement.",
+        "La competition n'existe pas. C'est un one man show.",
+        "On voit meme plus les barres des autres. C'est triste.",
+        "A ce stade, les autres devraient juste applaudir.",
+        "Ok stop. C'est de l'acharnement. Ils ont des familles.",
+        "Charles a tellement d'avance que les autres sont en retard sur la course d'apres.",
+        "Tu continues ? Les barres des autres vont bientot disparaitre.",
+    ];
+
+    function startRace() {
+        if (raceStarted) return;
+        raceStarted = true;
+        document.getElementById('raceStartBtn').classList.add('disabled');
+        document.getElementById('raceTryBtn').classList.remove('disabled');
+
+        // Animate bars
+        const bars = document.querySelectorAll('.racer .racer-bar');
+        racers.sort((a, b) => b.score - a.score);
+
+        // Re-render sorted
+        initRace();
+        setTimeout(() => {
+            const allRacers = document.querySelectorAll('.racer');
+            allRacers.forEach((el, i) => {
+                const bar = el.querySelector('.racer-bar');
+                const r = racers[i];
+                setTimeout(() => {
+                    bar.style.width = r.score + '%';
+                }, i * 100);
+            });
+            document.getElementById('raceMessage').textContent = 'Charles prend la tete... sans surprise.';
+        }, 100);
+    }
+
+    function tryDethrone() {
+        if (!raceStarted) return;
+        dethroneAttempts++;
+
+        // Briefly boost a random non-Charles racer
+        const others = racers.filter(r => !r.isCharles);
+        const lucky = others[Math.floor(Math.random() * others.length)];
+        const oldScore = lucky.score;
+        lucky.score = 15 + Math.floor(Math.random() * 8); // "boost" a 15-22% mdr
+
+        // Re-sort and re-render
+        racers.sort((a, b) => b.score - a.score);
+        const track = document.getElementById('raceTrack');
+        track.innerHTML = '';
+        racers.forEach((r, i) => {
+            const div = document.createElement('div');
+            div.className = 'racer' + (r.isCharles ? ' charles' : '');
+            div.innerHTML = `
+                <span class="race-medal">${i === 0 ? '&#127942;' : ''}</span>
+                <span class="racer-name">${r.name}</span>
+                <div class="racer-bar-bg">
+                    <div class="racer-bar" style="width: ${r.score}%"></div>
+                </div>
+            `;
+            track.appendChild(div);
+        });
+
+        document.getElementById('raceMessage').textContent = lucky.name + ' tente une remontee...';
+
+        // After 1s, Charles reclaims his throne
+        setTimeout(() => {
+            lucky.score = Math.max(oldScore - 2, 1); // il perd des points pour avoir ose
+            // Tous les autres perdent aussi un peu
+            racers.forEach(r => { if (!r.isCharles) r.score = Math.max(r.score - 1, 1); });
+            const charles = racers.find(r => r.isCharles);
+            charles.score = 100; // Charles reste a 100. Toujours.
+            racers.sort((a, b) => b.score - a.score);
+
+            track.innerHTML = '';
+            racers.forEach((r, i) => {
+                const div = document.createElement('div');
+                div.className = 'racer' + (r.isCharles ? ' charles' : '');
+                div.innerHTML = `
+                    <span class="race-medal">${i === 0 ? '&#127942;' : ''}</span>
+                    <span class="racer-name">${r.name}</span>
+                    <div class="racer-bar-bg">
+                        <div class="racer-bar" style="width: ${r.score}%"></div>
+                    </div>
+                `;
+                track.appendChild(div);
+            });
+
+            const msgIndex = Math.min(dethroneAttempts - 1, dethroneMessages.length - 1);
+            document.getElementById('raceMessage').textContent = dethroneMessages[msgIndex];
+        }, 1200);
+    }
+
+    // Init race when card becomes visible
+    const raceObserver = new MutationObserver(() => {
+        const card = document.getElementById('raceCard');
+        if (card && card.classList.contains('active') && !raceStarted) {
+            initRace();
+        }
+    });
+    raceObserver.observe(document.getElementById('raceCard'), { attributes: true, attributeFilter: ['class'] });
+    initRace();
+
+    // Save answers
+    function saveCurrentAnswer() {
+        switch(currentStep) {
+            case 1:
+                answers.note_soiree1 = document.getElementById('s1').value + '/20';
+                if (document.getElementById('t1').value) answers.comment_soiree1 = document.getElementById('t1').value;
+                break;
+            case 2:
+                answers.perf_physique1 = document.getElementById('s2').value + '/20';
+                if (document.getElementById('t2').value) answers.comment_perf1 = document.getElementById('t2').value;
+                break;
+            case 3:
+                answers.bisou = document.getElementById('s3').value + '/20';
+                break;
+            case 4:
+                answers.joie_charles_vient = document.getElementById('s4').value + '/20';
+                break;
+            case 5:
+                answers.perf_physique2 = document.getElementById('s5').value + '/20';
+                break;
+            case 6:
+                const items = rankList.querySelectorAll('.rank-item');
+                answers.classement = Array.from(items).map((item, i) => {
+                    const label = item.querySelector('.rank-text').textContent;
+                    const score = item.querySelector('.rank-input').value;
+                    return (i + 1) + '. ' + label + ' (' + score + '/20)';
+                }).join(' | ');
+                break;
+            case 7:
+                answers.manuc = selectedManuc ? 'Nuque n' + selectedManuc : 'Non repondu';
+                break;
+            case 8:
+                answers.hate_revoir = document.getElementById('s8').value + '/20';
+                break;
+            case 9:
+                answers.attachement = document.getElementById('s9').value + '/20';
+                if (document.getElementById('t9attach').value) answers.attachement_comment = document.getElementById('t9attach').value;
+                break;
+            case 10:
+                answers.podium = 'Charles en 1er (evidemment)';
+                break;
+            case 11:
+                const acts = document.querySelectorAll('[data-name="activites"] .checkbox-option.selected');
+                answers.activites = Array.from(acts).map(a => a.textContent).join(', ');
+                if (document.getElementById('t9').value) answers.activites_autre = document.getElementById('t9').value;
+                break;
+            case 12:
+                answers.attentes = document.getElementById('t10').value;
+                answers.mot_fin = document.getElementById('t11b').value;
+                break;
+        }
+    }
+
+    // Build summary text
+    function buildSummary() {
+        return `QUESTIONNAIRE D'ARIANE
+=========================
+Note soiree 1 : ${answers.note_soiree1 || '-'}${answers.comment_soiree1 ? ' (' + answers.comment_soiree1 + ')' : ''}
+Perf physique rdv 1 : ${answers.perf_physique1 || '-'}${answers.comment_perf1 ? ' (' + answers.comment_perf1 + ')' : ''}
+Le bisou : ${answers.bisou || '-'}
+Joie que Charles vienne : ${answers.joie_charles_vient || '-'}
+Perf physique rdv 2 : ${answers.perf_physique2 || '-'}
+Classement : ${answers.classement || '-'}
+La nuque : ${answers.manuc || '-'}
+Hate de revoir : ${answers.hate_revoir || '-'}
+Attachement : ${answers.attachement || '-'}${answers.attachement_comment ? ' (' + answers.attachement_comment + ')' : ''}
+Podium : ${answers.podium || '-'}
+Activites : ${answers.activites || '-'}${answers.activites_autre ? ' + ' + answers.activites_autre : ''}
+Attentes : ${answers.attentes || '-'}
+Mot de la fin : ${answers.mot_fin || '-'}
+=========================`;
+    }
+
+    // Submit
+    function submitQuiz() {
+        saveCurrentAnswer();
+
+        // Encode answers in URL hash
+        const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(answers))));
+        const resultsUrl = window.location.origin + window.location.pathname + '?r=' + encoded;
+        window._resultsUrl = resultsUrl;
+        window._summary = buildSummary();
+
+        console.log(window._summary);
+        currentStep = 13;
+        showStep(13);
+    }
+
+    function sendWhatsApp() {
+        const text = encodeURIComponent(window._summary);
+        window.open('https://wa.me/?text=' + text, '_blank');
+    }
+
+    function sendSMS() {
+        const text = encodeURIComponent(window._summary);
+        window.open('sms:&body=' + text, '_blank');
+    }
+
+    function copyResults() {
+        navigator.clipboard.writeText(window._summary).then(() => {
+            document.getElementById('copyConfirm').textContent = 'Copie !';
+            setTimeout(() => document.getElementById('copyConfirm').textContent = '', 2000);
+        });
+    }
+
+    // ADMIN : si l'URL contient ?r=xxx, afficher les resultats directement
+    (function checkAdmin() {
+        const params = new URLSearchParams(window.location.search);
+        const data = params.get('r');
+        if (data) {
+            try {
+                const decoded = JSON.parse(decodeURIComponent(escape(atob(data))));
+                // Rebuild summary from decoded answers
+                Object.assign(answers, decoded);
+                const adminCard = document.getElementById('adminCard');
+                const pre = document.getElementById('adminResults');
+
+                const lines = [
+                    ['Note soiree 1', decoded.note_soiree1, decoded.comment_soiree1],
+                    ['Perf physique rdv 1', decoded.perf_physique1, decoded.comment_perf1],
+                    ['Le bisou', decoded.bisou],
+                    ['Joie que Charles vienne', decoded.joie_charles_vient],
+                    ['Perf physique rdv 2', decoded.perf_physique2],
+                    ['Classement', decoded.classement],
+                    ['La nuque', decoded.manuc],
+                    ['Hate de revoir', decoded.hate_revoir],
+                    ['Attachement', decoded.attachement, decoded.attachement_comment],
+                    ['Podium', decoded.podium],
+                    ['Activites', decoded.activites, decoded.activites_autre],
+                    ['Attentes', decoded.attentes],
+                    ['Mot de la fin', decoded.mot_fin],
+                ];
+
+                let text = '';
+                for (const [label, val, extra] of lines) {
+                    text += label + ' : ' + (val || '-');
+                    if (extra) text += ' (' + extra + ')';
+                    text += '\n';
+                }
+
+                pre.textContent = text;
+
+                // Hide quiz, show admin
+                document.querySelectorAll('.question-card').forEach(c => c.classList.remove('active'));
+                adminCard.style.display = 'block';
+                adminCard.classList.add('active');
+                document.querySelector('.progress-bar').style.display = 'none';
+            } catch(e) {
+                console.error('Erreur decodage resultats', e);
+            }
+        }
+    })();
+
+    // Night mode
+    let nightMode = false;
+
+    function toggleNightMode() {
+        nightMode = !nightMode;
+        document.body.classList.toggle('night-mode', nightMode);
+        document.getElementById('nightBtn').innerHTML = nightMode ? '&#9728;&#65039;' : '&#127769;';
+        // Restart music if playing to switch melody
+        if (musicPlaying) {
+            stopMusic();
+            setTimeout(startMusic, 200);
+        }
+    }
+
+    // Music
+    let audioCtx = null, musicPlaying = false, musicTimeout = null;
+    let nightAudio = null;
+
+    // Preload night mode audio
+    function initNightAudio() {
+        nightAudio = new Audio('Joe Cocker - You Can Leave Your Hat On (Official Video).mp3');
+        nightAudio.loop = true;
+        nightAudio.volume = 0.5;
+    }
+    initNightAudio();
+
+    function stopMusic() {
+        musicPlaying = false;
+        const btn = document.getElementById('musicBtn');
+        btn.classList.remove('playing');
+        btn.innerHTML = '&#127925;';
+        if (audioCtx) { audioCtx.close(); audioCtx = null; }
+        if (musicTimeout) clearTimeout(musicTimeout);
+        if (nightAudio) { nightAudio.pause(); nightAudio.currentTime = 0; }
+    }
+
+    function startMusic() {
+        musicPlaying = true;
+        const btn = document.getElementById('musicBtn');
+        btn.classList.add('playing');
+        btn.innerHTML = '&#128264;';
+        if (nightMode) {
+            // Night mode = Joe Cocker
+            if (audioCtx) { audioCtx.close(); audioCtx = null; }
+            if (musicTimeout) clearTimeout(musicTimeout);
+            nightAudio.play();
+        } else {
+            // Day mode = melodie generee
+            nightAudio.pause(); nightAudio.currentTime = 0;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            playMelody();
+        }
+    }
+
+    function toggleMusic() {
+        if (musicPlaying) stopMusic(); else startMusic();
+    }
+
+    function playNote(freq, startTime, duration, type, vol) {
+        if (!audioCtx || !musicPlaying) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type || 'sine';
+        osc.frequency.value = freq;
+        const v = vol || 0.08;
+        gain.gain.setValueAtTime(0, startTime);
+        gain.gain.linearRampToValueAtTime(v, startTime + 0.05);
+        gain.gain.setValueAtTime(v, startTime + duration - 0.1);
+        gain.gain.linearRampToValueAtTime(0, startTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+    }
+
+    // Melodie cute (mode jour)
+    function playMelody() {
+        if (!audioCtx || !musicPlaying || nightMode) return;
+        const notes = [
+            [523.25,0.4],[587.33,0.4],[659.25,0.6],[587.33,0.3],
+            [659.25,0.4],[783.99,0.6],[659.25,0.8],[0,0.3],
+            [783.99,0.4],[659.25,0.4],[587.33,0.6],[523.25,0.4],
+            [587.33,0.4],[523.25,0.8],[0,0.5],
+            [392,0.4],[523.25,0.4],[659.25,0.6],[587.33,0.3],
+            [523.25,0.6],[493.88,0.4],[523.25,1.0],[0,0.8],
+        ];
+        let t = audioCtx.currentTime + 0.1;
+        for (const [freq, dur] of notes) {
+            if (freq > 0) { playNote(freq, t, dur); playNote(freq * 2, t, dur); }
+            t += dur;
+        }
+        const total = notes.reduce((s, n) => s + n[1], 0);
+        musicTimeout = setTimeout(() => { if (musicPlaying && !nightMode) playMelody(); }, total * 1000);
+    }
+
+    // Melodie night mode - saxophone/jazz sensuel
+    function playNightMelody() {
+        if (!audioCtx || !musicPlaying || !nightMode) return;
+
+        // Basse groovy lente
+        const bass = [
+            [130.81,0.8],[0,0.1],[146.83,0.8],[0,0.1],
+            [155.56,0.8],[0,0.1],[146.83,0.8],[0,0.1],
+            [130.81,0.8],[0,0.1],[116.54,0.8],[0,0.1],
+            [123.47,0.8],[0,0.1],[130.81,1.2],[0,0.3],
+        ];
+
+        // Melodie sensuelle (genre sax)
+        const melody = [
+            [0,0.4],
+            [311.13,0.6],[349.23,0.5],[392.00,0.9],[0,0.2],
+            [349.23,0.5],[311.13,0.4],[293.66,0.8],[0,0.3],
+            [349.23,0.6],[392.00,0.5],[440.00,0.9],[0,0.2],
+            [392.00,0.4],[349.23,0.5],[311.13,1.0],[0,0.4],
+            [261.63,0.5],[293.66,0.4],[349.23,0.7],[0,0.2],
+            [311.13,0.5],[293.66,0.4],[261.63,1.0],[0,0.6],
+        ];
+
+        let t = audioCtx.currentTime + 0.1;
+
+        // Jouer la basse (triangle = son chaud)
+        let tb = t;
+        for (const [freq, dur] of bass) {
+            if (freq > 0) playNote(freq, tb, dur, 'triangle', 0.1);
+            tb += dur;
+        }
+
+        // Jouer la melodie (sawtooth doux = faux sax)
+        let tm = t;
+        for (const [freq, dur] of melody) {
+            if (freq > 0) {
+                playNote(freq, tm, dur, 'sawtooth', 0.04);
+                playNote(freq * 1.002, tm, dur, 'sawtooth', 0.03); // leger detune pour le grain
+                playNote(freq * 0.5, tm, dur, 'triangle', 0.03); // octave basse
+            }
+            tm += dur;
+        }
+
+        // Petits accords de piano en fond
+        const chords = [
+            [[261.63,329.63,392.00], 1.6], [[0],0.1],
+            [[293.66,349.23,440.00], 1.6], [[0],0.1],
+            [[311.13,392.00,466.16], 1.6], [[0],0.1],
+            [[261.63,329.63,392.00], 1.8], [[0],0.3],
+        ];
+        let tc = t;
+        for (const [freqs, dur] of chords) {
+            for (const f of freqs) {
+                if (f > 0) playNote(f, tc, dur, 'sine', 0.025);
+            }
+            tc += dur;
+        }
+
+        const totalBass = bass.reduce((s, n) => s + n[1], 0);
+        musicTimeout = setTimeout(() => { if (musicPlaying && nightMode) playNightMelody(); }, totalBass * 1000);
+    }
+</script>
+
+</body>
+</html>
